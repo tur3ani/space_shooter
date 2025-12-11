@@ -1,0 +1,8 @@
+LICENSE:
+- You can use the NES 2-in-1 Asset Pack Vol.1’s assets for both commercial and personal projects.
+- You cannot resell or redistribute the NES 2-in-1 Asset Pack Vol.1’s assets.
+- You can modify the NES 2-in-1 Asset Pack Vol.1’s assets to better fit your projects.
+- You cannot modify the NES 2-in-1 Asset Pack Vol.1’s assets for resell or redistribution.
+- You can use the NES 2-in-1 Asset Pack Vol.1’s assets in a group project. -- NOTE: Only one person has to own the asset, not everyone.
+- You cannot share the NES 2-in-1 Asset Pack Vol.1’s assets.
+- You cannot sell a project file that uses the NES 2-in-1 Asset Pack Vol.1’s assets.  

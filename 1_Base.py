@@ -33,9 +33,15 @@ enemy_texture = load_texture("assets/NES_2-in-1_Asset_Pack_Vol_1/Exominus_Shmup/
 enemies = []
 for i in range(5):
     enemy = {
+        'health': 5,
         'pos': Vector2(get_random_value(0,width), get_random_value(-500, 0)),
         'speed': get_random_value(150, 350),
-        'texture': enemy_texture
+        'texture': enemy_texture,
+        'width': enemy_texture.width,
+        'height': enemy_texture.height,
+        'min_speed': 50,
+        'max_speed': 600
+
     }
     enemies.append(enemy)
 
@@ -96,13 +102,18 @@ while not window_should_close():
             if enemy['pos'].y > 720:
                 enemy['pos'].y = -50
                 enemy['pos'].x = get_random_value(0, width)
-                enemy['speed'] = get_random_value(50, 150)
+                enemy['speed'] = get_random_value(enemy['max_speed'], enemy['min_speed'])
         # bullet spawn
         shoot_cooldown -= dt
 
         if is_key_down(KEY_SPACE) and shoot_cooldown < 0:
             bullet = {
-                'pos': Vector2(spaceShip_pos.x, spaceShip_pos.y - 20)
+                'pos': Vector2(spaceShip_pos.x, spaceShip_pos.y - 20),
+                'height': bullets_texture.height,
+                'width': bullets_texture.width,
+                'speed': 500,
+
+
             }
             bullets.append(bullet)
             shoot_cooldown += 0.15
@@ -115,7 +126,7 @@ while not window_should_close():
 
         # enemy collisions
         for enemy in enemies:
-            if check_collisions(spaceShip_pos,spaceShip.width,spaceShip.height,enemy['pos'],enemy['texture'].width,enemy['texture'].height):
+            if check_collisions(spaceShip_pos,spaceShip.width,spaceShip.height,enemy['pos'],enemy['width'],enemy['height']):
                 print("got hit!!")
 
                 hit_timer = 0.5
@@ -128,6 +139,18 @@ while not window_should_close():
             hit_timer -= dt
         if player_health <= 0:
             print("GAME OVER")
+        # bullets collisions
+        for bullet in bullets[:]:
+            for enemy in enemies[:]:
+                bullet_rect = Rectangle(bullet['pos'].x,bullet['pos'].y,bullet['width'],bullet['height'])
+                enemy_rect = Rectangle(enemy['pos'].x, enemy['pos'].y, enemy['width'], enemy['height'])
+                if check_collision_recs(bullet_rect,enemy_rect):
+                    bullets.remove(bullet)
+                    enemy['health'] -= 1
+
+                    if enemy['health'] <= 0:
+                        enemies.remove(enemy)
+
 
 
 

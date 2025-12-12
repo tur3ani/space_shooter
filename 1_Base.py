@@ -4,21 +4,29 @@ from os.path import join
 height = 720
 width = 1280
 init_window(width, height, "main Window")
-set_exit_key(KEY_ESCAPE)
+
 # player variables
 spaceShip = load_texture(join("assets", "DurrrSpaceShip.png"))
-spaceShip_pos = Vector2(0, 0)
+spaceShip_pos = Vector2(width // 2 - 60, height // 2)
 speed = 600
 slow_speed = speed // 2
 space_hold_time = 1
 hit_timer = 0.0
 player_health = 3
-
+bullet_img = load_image("assets/NES_2-in-1_Asset_Pack_Vol_1/Exominus_Shmup/sprPlayerBulletAlt.png")
+image_resize(bullet_img,18,18)
+bullets_texture = load_texture_from_image(bullet_img)
 
 # paused
 paused = False
 cont_button_texture = load_texture("assets/cont_button.png")
+cont_button_texture_hover = load_texture("assets/cont_button_hover.png")
 
+Restart_button_texture = load_texture("assets/restart_button.png")
+Restart_button_texture_hover = load_texture("assets/restart_button_hover.png")
+
+quit_button_texture = load_texture("assets/Quit_button.png")
+quit_button_texture_hover = load_texture("assets/Quit_button_hover.png")
 # enemy variables
 enemy_texture = load_texture("assets/NES_2-in-1_Asset_Pack_Vol_1/Exominus_Shmup/sprTankEnemy.png")
 
@@ -30,6 +38,12 @@ for i in range(5):
         'texture': enemy_texture
     }
     enemies.append(enemy)
+
+# bullets ya kbeer
+bullets = []
+bullets_spd = 500
+shoot_cooldown = 0
+
 
 # collisions
 def check_collisions(pos1, width1, height1, pos2, width2, height2):
@@ -83,6 +97,21 @@ while not window_should_close():
                 enemy['pos'].y = -50
                 enemy['pos'].x = get_random_value(0, width)
                 enemy['speed'] = get_random_value(50, 150)
+        # bullet spawn
+        shoot_cooldown -= dt
+
+        if is_key_down(KEY_SPACE) and shoot_cooldown < 0:
+            bullet = {
+                'pos': Vector2(spaceShip_pos.x, spaceShip_pos.y - 20)
+            }
+            bullets.append(bullet)
+            shoot_cooldown += 0.15
+
+        for bullet in bullets[:]:
+            bullet['pos'].y -= bullets_spd * dt
+
+            if bullet['pos'].y < -20 :
+                bullets.remove(bullet)
 
         # enemy collisions
         for enemy in enemies:
@@ -125,20 +154,44 @@ while not window_should_close():
 
     draw_text(f"Health: {player_health}",width - 100,0,20,WHITE)
 
+    for bullet in bullets:
+        draw_texture(bullets_texture,int(bullet['pos'].x), int(bullet['pos'].y), WHITE)
     if paused:
         draw_rectangle(0,0, width, height, fade(BLACK,0.7))
-        draw_text("Press P to continue...", width // 2 -120, height // 2,20, WHITE)
-
-        draw_rectangle(int(mouse_position.x),int(mouse_position.y), 10, 20,  RED)
-
-        button_rect = Rectangle(width // 2 - 320, height // 2 + 120, cont_button_texture.width, cont_button_texture.height)
-        draw_texture(cont_button_texture,width // 2 - 320,height // 2 + 120, WHITE)
-        if check_collision_point_rec(get_mouse_position(), button_rect) and is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-            paused = not paused
+        draw_text("PAUSE", width // 2 - 80 , 100,40, WHITE)
 
 
 
+        cont_button = Rectangle(width // 2 - 120, height // 2 - 120, cont_button_texture.width, cont_button_texture.height)
+        restart_button = Rectangle(width // 2 - 120, height // 2,Restart_button_texture.width, Restart_button_texture.height)
+        quit_button = Rectangle(width // 2 - 120, height // 2 + 120, quit_button_texture.width, quit_button_texture.height)
 
+        draw_texture(Restart_button_texture,width // 2 - 120, height // 2, WHITE)
+        draw_texture(cont_button_texture,width // 2 - 120,height // 2 - 120, WHITE)
+        draw_texture(quit_button_texture,width // 2 - 120,height // 2 + 120, WHITE)
+
+        if check_collision_point_rec(get_mouse_position(), cont_button):
+            draw_texture(cont_button_texture_hover,width // 2 - 120,height // 2 - 120, WHITE)
+            if is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+                paused = not paused
+
+        if check_collision_point_rec(get_mouse_position(), restart_button):
+            draw_texture(Restart_button_texture_hover,width // 2 - 120,height // 2, WHITE)
+            if is_mouse_button_pressed((MOUSE_BUTTON_LEFT)):
+                for enemy in enemies:
+                    enemy['pos'].y = -50
+                    enemy['pos'].x = get_random_value(0, width)
+                    enemy['speed'] = get_random_value(50, 150)
+                player_health = 3
+                spaceShip_pos.x = width // 2 - 60
+                spaceShip_pos.y = height // 2
+                paused = not paused
+
+
+        if check_collision_point_rec(get_mouse_position(), quit_button):
+            draw_texture(quit_button_texture_hover,width // 2 - 120,height // 2 + 120, WHITE)
+            if is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+                exit()
 
 
     end_drawing()
